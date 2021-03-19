@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import func
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///tmp/movie.db'
@@ -40,7 +41,13 @@ def movie():
 
 @app.route('/score')
 def score():
-    return render_template('score.html')
+    score = []
+    num = []
+    values = Movie.query.with_entities(Movie.score, func.count(Movie.score)).group_by('score').all()
+    for item in values:
+        score.append(str(item[0]))
+        num.append(item[1])
+    return render_template('score.html', score = score, num = num)
 
 @app.route('/word')
 def word():
